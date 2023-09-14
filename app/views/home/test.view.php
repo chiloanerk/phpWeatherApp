@@ -17,27 +17,34 @@ if (isset($_GET['search'])) {
         ),
     ));
 
-    $response = file_get_contents($apiUrl, false, $context);
+    try {
+        // Lost connection and got errors, this is the error handling for that situation
+        $retryCount = 3;
+        $retryDelay = 1;
+        $response = @file_get_contents($apiUrl, false, $context);
 
-    if ($response === false) {
-        $error = "Failed to fetch weather data.";
-    } else {
+        if ($response === false) {
+            throw new Exception("Failed to fetch weather data.");
+        }
+
         $data = json_decode($response);
 
-        if ($data !== null && isset($data->name, $data->main->temp, $data->weather[0]->description, $data->weather[0]->icon)) {
-            // Extract weather data from the API response
-            $cityName = $data->name;
-            $temp = $data->main->temp;
-            $temperature = $temp - 273;
-            $rainProbability = $data->weather[0]->description;
-            $weatherIcon = $data->weather[0]->icon;
-            $feel = $data->main->feels_like;
-            $feels_like = $feel - 273;
-            $wind = $data->wind->speed . 'm/s';
-            $humidity = $data->main->humidity . '%';
-        } else {
-            $error = "Invalid data in API response.";
+        if ($data === null || !isset($data->name, $data->main->temp, $data->weather[0]->description, $data->weather[0]->icon)) {
+            throw new Exception("Invalid data in API response.");
         }
+
+        // Extract weather data from the API response
+        $cityName = $data->name;
+        $temp = $data->main->temp;
+        $temperature = $temp - 273;
+        $rainProbability = $data->weather[0]->description;
+        $weatherIcon = $data->weather[0]->icon;
+        $feel = $data->main->feels_like;
+        $feels_like = $feel - 273;
+        $wind = $data->wind->speed . 'm/s';
+        $humidity = $data->main->humidity . '%';
+    } catch (Exception $e) {
+        $error = $e->getMessage();
     }
 } else {
     $error = "City not specified.";
