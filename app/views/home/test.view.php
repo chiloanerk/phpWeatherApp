@@ -1,36 +1,46 @@
 <?php
-// Replace 'YOUR_API_KEY' with your actual OpenWeatherMap API key
 $apiKey = '37cae92af4b42d8acfce79455b70c571';
+$error = "";
+$cityName = "N/A";
+$temperature = 'N/A';
+$rainProbability = 'N/A';
+$weatherIcon = 'N/A';
+
 if (isset($_GET['search'])) {
-    $city = $_GET['search']; // Assuming you are using the 'GET' method to retrieve the city name from the input field
-} else {
-    $city = false;
-}
-if (!empty($city)) {
+    $city = urlencode($_GET['search']);
+
     $apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey";
 
-    $response = file_get_contents($apiUrl);
+    $context = stream_context_create(array(
+        'http' => array(
+            'ignore_errors' => true,
+        ),
+    ));
 
-    if ($response) {
+    $response = file_get_contents($apiUrl, false, $context);
+
+    if ($response === false) {
+        $error = "Failed to fetch weather data.";
+    } else {
         $data = json_decode($response);
 
-        // Extract weather data from the API response
-        $cityName = $data->name;
-        $temp = $data->main->temp;
-        $temperature = $temp - 273;
-        $rainProbability = $data->weather[0]->description;
-        $weatherIcon = $data->weather[0]->icon;
-
-        // You can now use these variables to display weather data in your HTML
-        // For example, you can replace the placeholders in your HTML template with these variables
-    } else {
-        echo "Failed to fetch weather data.";
+        if ($data !== null && isset($data->name, $data->main->temp, $data->weather[0]->description, $data->weather[0]->icon)) {
+            // Extract weather data from the API response
+            $cityName = $data->name;
+            $temp = $data->main->temp;
+            $temperature = $temp - 273;
+            $rainProbability = $data->weather[0]->description;
+            $weatherIcon = $data->weather[0]->icon;
+            $feel = $data->main->feels_like;
+            $feels_like = $feel - 273;
+            $wind = $data->wind->speed . 'm/s';
+            $humidity = $data->main->humidity . '%';
+        } else {
+            $error = "Invalid data in API response.";
+        }
     }
 } else {
-    $cityName = "N/A";
-    $temperature = 'N/A';
-    $rainProbability = 'N/A';
-    $weatherIcon = 'N/A';
+    $error = "City not specified.";
 }
 ?>
 
@@ -55,6 +65,7 @@ if (!empty($city)) {
                 <input type="text" name="search" id="search">
                 <button type="submit">go</button>
             </form>
+            <p><?= $error; ?></p>
         </div>
     </header>
     <main class="bg-purple-300">
@@ -82,7 +93,23 @@ if (!empty($city)) {
                         </div>
                     </div>
                     <div class="bg-blue-50">Hourly forecast</div>
-                    <div class="bg-blue-50">Air conditions</div>
+                    <div class="bg-blue-50 p-1">
+                        <div id="air-conditions" class="grid grid-rows-2 grid-cols-2 gap-x-8 h-full bg-pink-300">
+                            <div class="bg-gray-100">
+                                <p>Feels Like</p>
+                                <p><?= $feels_like; ?></p>
+                            </div>
+                            <div class="bg-green-100">
+                                <p>Wind Speed</p>
+                                <p><?= $wind; ?></p>
+                            </div>
+                            <div class="bg-amber-100">
+                                <p>Humidity</p>
+                                <p><?= $humidity; ?></p>
+                            </div>
+                            <div class="bg-teal-400">4</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="bg-green-700 col-span-2">
