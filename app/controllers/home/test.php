@@ -1,2 +1,0 @@
-<?php
-view('home/test');
