@@ -31,7 +31,7 @@
         </nav>
         <div id="search" class="col-span-3 bg-purple-100">
             <!-- Geolocation form -->
-            <form action="/" method="get" id="geo-form">
+            <form action="/test" method="get" id="geo-form">
                 <input type="hidden" name="lat" id="geo-lat">
                 <input type="hidden" name="lon" id="geo-lon">
                 <button type="button" onclick="getLocation()">Get My Location</button>
@@ -67,14 +67,9 @@
                                 </div>
                                 <div class="bg-purple-400"><?= $temperature; ?></div>
                             </div>
-                            <div class="bg-blue-200 col-span-2 flex items-center justify-end">
-                                <?php if (empty($weatherIcon)) {
-                                    echo '';
-                                } else { ?>
-                                <img
-                                        src="http://openweathermap.org/img/wn/<?= $weatherIcon; ?>@2x.png"
-                                        alt="Weather Icon">
-                                <?php } ?>
+                            <div class="bg-blue-200 col-span-2 flex items-center justify-end"><img
+                                    src="http://openweathermap.org/img/wn/<?= $weatherIcon; ?>@2x.png"
+                                    alt="Weather Icon">
                             </div>
                         </div>
                     </div>
@@ -122,7 +117,6 @@
                     <?php
                     $uniqueDates = []; // To keep track of unique dates
 
-                    if (isset($forecast_data) && is_array($forecast_data)) {
                     // Iterate over the 5-day forecast data
                     foreach ($forecast_data as $day) {
                         $date = date('Y-m-d', $day['dt']);
@@ -150,12 +144,12 @@
                                 <?= $temperature ?>°C
                             </div>
                         </div>
-                    <?php }
-                    } else { ?>
-                        <div class="bg-amber-500 p-2">Forecast data not available</div>
-                   <?php }?>
+                    <?php } ?>
                 </div>
             </div>
+
+
+
         </section>
     </main>
     <footer class="bg-gray-700 h-16">

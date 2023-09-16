@@ -37,7 +37,7 @@ function get5DayForecast($lat, $lon, $apiKey) {
 }
 
 // Define default values
-$defaultValues = array_fill_keys(['error', 'cityName', 'temperature', 'description', 'weatherIcon', 'feels_like', 'wind', 'humidity', 'clouds', 'latitude', 'longitude', 'hourly_data'], '');
+$defaultValues = array_fill_keys(['error', 'cityName', 'temperature', 'description', 'weatherIcon', 'feels_like', 'wind', 'humidity', 'clouds', 'latitude', 'longitude', 'hourly_data'], 'N/A');
 
 try {
     // Check if the geolocation form was submitted
@@ -115,12 +115,12 @@ try {
         $weatherData['hourly_data'] = $hourly_data;
         $weatherData['forecast_data'] = $forecast_data;
 
-        view('home/index', $weatherData);
+        view('home/test', $weatherData);
     } else {
-        view('home/index', $defaultValues);
+        view('home/test', $defaultValues);
     }
 } catch (Exception $e) {
     $defaultValues['error'] = $e->getMessage();
-    view('home/index', $defaultValues);
+    view('home/test', $defaultValues);
 }
 ?>
